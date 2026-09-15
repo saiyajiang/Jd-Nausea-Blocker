@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         京东 · 不适商品屏蔽器
 // @namespace    https://github.com/saiyajiang/jd-nausea-blocker
-// @version      2.2.0
-// @description  【AI 制作】按关键词 / SKU / 店铺屏蔽京东上让你不适的商品，可选「图片打码」或「彻底隐藏」，鼠标悬停商品卡可一键拉黑。
-// @description:zh-CN 【本脚本由 AI 制作】按关键词 / SKU / 店铺屏蔽京东（jd.com、jd.hk）网页上让你不适的商品。支持两种模式：图片打码（商品仍在，图被高斯模糊，悬停可临时查看）或彻底隐藏（商品卡直接消失）。鼠标悬停商品卡会浮出「屏蔽 / 显示」按钮，可一键拉黑该 SKU、该店铺或顺手加关键词。设置面板内改动即时生效，无需手动保存。内置诊断工具可查看当前页面识别到多少个商品卡、命中几个、以及商品的真实标题，方便排查失效原因。SKU 即商品编号，是京东每件商品的唯一 ID，用它拉黑最精准。
-// @description:en  [AI-generated] Hide or blur JD.com products you find disgusting, filtered by keyword / SKU / shop. Two modes: blur the image or remove the card entirely. One-click block button on hover, live-editing settings panel, and a built-in diagnostics tool. SKU = the unique product ID on JD.
+// @version      2.3.0
+// @description  【AI 制作】按关键词 / 商品唯一编号 / 店铺屏蔽京东上让你不适的商品，可选「图片打码」或「彻底隐藏」，鼠标悬停商品卡可一键拉黑。
+// @description:zh-CN 【本脚本由 AI 制作】按关键词 / 商品唯一编号 / 店铺屏蔽京东（jd.com、jd.hk）网页上让你不适的商品。支持两种模式：图片打码（商品仍在，图被高斯模糊，悬停可临时查看）或彻底隐藏（商品卡直接消失）。鼠标悬停商品卡会浮出「屏蔽 / 显示」按钮，可一键拉黑该商品的唯一编号、该店铺或顺手加关键词。设置面板内改动即时生效，无需手动保存。内置诊断工具可查看当前页面识别到多少个商品卡、命中几个、以及商品的真实标题，方便排查失效原因。商品唯一编号即京东每件商品的专属 ID（商品页地址栏里那串数字，如 item.jd.com/100012043978.html 中的 100012043978），用编号拉黑最精准，不误伤其他商品。
+// @description:en  [AI-generated] Hide or blur JD.com products you find disgusting, filtered by keyword / product ID / shop. Two modes: blur the image or remove the card entirely. One-click block button on hover, live-editing settings panel, and a built-in diagnostics tool. The product ID is the number in a product page URL (e.g. 100012043978 in item.jd.com/100012043978.html).
 // @author       saiyajiang
 // @license      MIT
 // @homepageURL  https://github.com/saiyajiang/Jd-Nausea-Blocker
@@ -41,17 +41,26 @@
 //   关键词屏蔽功能，本脚本就是补上这个缺口：你告诉它哪些词 / 哪些商品 / 哪些
 //   店铺不想看，它就在你眼前把这些商品卡打码或直接移除。
 //
-// 【SKU 是什么】
-//   SKU = Stock Keeping Unit（库存量单位），在京东就是**商品的唯一编号**，
-//   通常是一串数字，比如 100012043978。打开任意商品页，地址栏
-//   https://item.jd.com/100012043978.html 里那串数字就是 SKU。
-//   同一个商品的不同规格（颜色、容量）各有各的 SKU。
-//   用 SKU 拉黑 = 精确屏蔽这一件商品，不会误伤其他标题里也含该词的商品。
-//   这就是为什么脚本提供「按 SKU 拉黑」，而不只是按关键词。
+// 【「商品唯一编号」是什么】
+//   京东给每一件商品分配一个专属编号，通常是一串数字，比如 100012043978。
+//   打开任意商品页，看地址栏：
+//       https://item.jd.com/100012043978.html
+//                           ↑↑↑↑↑↑↑↑↑↑↑↑
+//                           这串数字就是该商品的唯一编号
+//   同一件商品的不同规格（颜色、容量、套装）各有各的编号。
+//   （电商行业里这个概念常被称为 SKU，本脚本界面上一律用中文「商品唯一编号」
+//     来称呼它，免得看不懂。）
+//
+//   为什么要有这个规则？对比三种规则的精度：
+//     关键词     粗 —— 屏蔽「蛇」会连蛇年文创、宠物蛇粮一起干掉
+//     店铺       中 —— 该店所有商品都消失，包括正常的
+//     商品唯一编号 精确 —— 只屏蔽这一件商品，绝不误伤
+//   所以遇到"标题很正常、但图很恶心"的商品（关键词拦不住），
+//   用商品唯一编号拉黑是唯一精准的解法。
 //
 // 【功能】
 //   1. 两种屏蔽模式：图片打码 / 彻底隐藏
-//   2. 三类规则：关键词（支持正则）、SKU 黑名单、店铺黑名单
+//   2. 三类规则：关键词（支持正则）、商品唯一编号黑名单、店铺黑名单
 //   3. 鼠标悬停商品卡，右上角浮出「屏蔽 / 显示」按钮，一键拉黑
 //   4. 设置面板内改动即停手自动生效，无需点保存
 //   5. 覆盖搜索页、列表页、首页推荐流、详情页推荐位
@@ -351,7 +360,7 @@
         const hay = [info.title, info.imgText, info.shop, info.sku].join('\n');
         const kw = matchKeyword(hay);
         if (kw) return { why: '关键词：' + kw, info };
-        if (info.sku && skuSet.has(info.sku)) return { why: '已拉黑 SKU ' + info.sku, info };
+        if (info.sku && skuSet.has(info.sku)) return { why: '已拉黑的商品编号：' + info.sku, info };
         if (info.shop && matchShop(info.shop)) return { why: '店铺：' + matchShop(info.shop), info };
         return { why: null, info };
     }
@@ -455,9 +464,10 @@
         const info = cardInfo(item);
         const ans = window.prompt(
             '屏蔽这个商品：\n' +
-            '  直接确定  → 拉黑 SKU' + (info.sku ? '（' + info.sku + '）' : '（未识别到 SKU）') + '\n' +
+            '  直接确定  → 拉黑该商品的唯一编号' + (info.sku ? '（' + info.sku + '）' : '（未识别到商品编号）') + '\n' +
             '  输入 s     → 拉黑店铺' + (info.shop ? '（' + info.shop + '）' : '（未识别到店铺）') + '\n' +
             '  输入文字   → 作为关键词（多个用空格分隔）\n\n' +
+            '  提示：用商品唯一编号拉黑最精准，只屏蔽这一件，不会误伤其他商品。\n\n' +
             '商品：' + info.title.slice(0, 40),
             ''
         );
@@ -533,7 +543,11 @@
             </div>
             <label class="blk">关键词（每行一个，支持 /正则/i，改动即自动生效）</label>
             <textarea id="nb-kw">${esc((cfg.keywords || []).join('\n'))}</textarea>
-            <label class="blk">SKU 黑名单（每行一个）</label>
+            <label class="blk">商品唯一编号黑名单（每行一个）</label>
+            <div class="tip" style="margin-bottom:4px">
+                商品唯一编号 = 商品页地址栏里那串数字，如 item.jd.com/<b>100012043978</b>.html
+                里的 100012043978。按编号拉黑最精准，只屏蔽这一件商品。
+            </div>
             <textarea id="nb-sku" style="height:60px">${esc((cfg.skus || []).join('\n'))}</textarea>
             <label class="blk">店铺黑名单（每行一个）</label>
             <textarea id="nb-shop" style="height:60px">${esc((cfg.shops || []).join('\n'))}</textarea>
@@ -570,7 +584,7 @@
         panel.querySelector('#nb-close').addEventListener('click', () => { panel.remove(); panel = null; });
         panel.querySelector('#nb-diag').addEventListener('click', openDiag);
         panel.querySelector('#nb-reset').addEventListener('click', () => {
-            if (window.confirm('恢复默认关键词？SKU / 店铺黑名单会清空。')) {
+            if (window.confirm('恢复默认关键词？商品唯一编号 / 店铺黑名单会清空。')) {
                 saveCfg(Object.assign({}, DEFAULTS, { keywords: DEFAULT_KEYWORDS.slice(), skus: [], shops: [] }));
                 if (panel) { panel.remove(); panel = null; }
                 toast('已恢复默认');
@@ -612,7 +626,7 @@
         const s = panel && panel.querySelector('#nb-stat');
         if (!s) return;
         s.innerHTML = cfg.enabled
-            ? '规则：关键词 ' + cfg.keywords.length + ' / SKU ' + cfg.skus.length + ' / 店铺 ' + cfg.shops.length +
+            ? '规则：关键词 ' + cfg.keywords.length + ' / 商品编号 ' + cfg.skus.length + ' / 店铺 ' + cfg.shops.length +
               '<br>本页：识别到 <b>' + stat.cards + '</b> 个商品，命中 <b>' + stat.hit + '</b> 个。识别数为 0 请点「诊断」。'
             : '已暂停（所有屏蔽已撤销）。';
     }
