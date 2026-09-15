@@ -1,18 +1,28 @@
 // ==UserScript==
 // @name         京东 · 不适商品屏蔽器
 // @namespace    https://github.com/saiyajiang/jd-nausea-blocker
-// @version      2.0.0
-// @description  按关键词 / SKU / 店铺屏蔽京东上让你不适的商品（图片打码 或 彻底隐藏）。鼠标悬停商品卡可一键拉黑，内置诊断工具。
+// @version      2.1.0
+// @description  按关键词 / SKU / 店铺屏蔽京东上让你不适的商品，可选「图片打码」或「彻底隐藏」。鼠标悬停商品卡可一键拉黑，内置诊断工具。
+// @description:zh-CN 按关键词 / SKU / 店铺屏蔽京东（jd.com、jd.hk）网页上让你不适的商品。支持两种模式：图片打码（商品仍在，图被高斯模糊，悬停可临时查看）或彻底隐藏（商品卡直接消失）。鼠标悬停商品卡会浮出「屏蔽 / 显示」按钮，可一键拉黑该 SKU、该店铺或顺手加关键词。设置面板内改动即时生效，无需手动保存。内置诊断工具可查看当前页面识别到多少个商品卡、命中几个、以及商品的真实标题，方便排查失效原因。本脚本由 AI 辅助生成。
+// @description:en  Hide or blur JD.com products you find disgusting, filtered by keyword / SKU / shop. One-click block button on hover, live-editing settings panel, and a built-in diagnostics tool. AI-assisted.
 // @author       saiyajiang
 // @license      MIT
 // @homepageURL  https://github.com/saiyajiang/jd-nausea-blocker
 // @supportURL   https://github.com/saiyajiang/jd-nausea-blocker/issues
 // @downloadURL  https://raw.githubusercontent.com/saiyajiang/jd-nausea-blocker/main/jd-nausea-blocker.user.js
 // @updateURL    https://raw.githubusercontent.com/saiyajiang/jd-nausea-blocker/main/jd-nausea-blocker.meta.js
-// @match        *://*.jd.com/*
-// @match        *://*.jd.hk/*
-// @match        *://*.jd.com.hk/*
+// @match        https://*.jd.com/*
+// @match        http://*.jd.com/*
+// @match        https://jd.com/*
+// @match        https://*.jd.hk/*
+// @match        http://*.jd.hk/*
+// @match        https://*.jd.com.hk/*
+// @match        http://*.jd.com.hk/*
+// @connect      none
 // @run-at       document-start
+// @compatible   chrome
+// @compatible   edge
+// @compatible   firefox
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_registerMenuCommand
