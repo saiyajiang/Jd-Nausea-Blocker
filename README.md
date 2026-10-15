@@ -1,5 +1,7 @@
 # 京东 · 不适商品屏蔽器
 
+<img src="icon.png" width="64" height="64" align="right" alt="脚本图标">
+
 > ## 🤖 AI 制作声明
 >
 > **本项目的代码与文档由 AI 制作**，经人工实机安装测试后发布。
@@ -127,7 +129,7 @@ https://item.jd.com/100012043978.html
    - 文件路径：`jd-nausea-blocker.user.js`
 4. 保存。之后 Greasyfork 会定期抓取 `jd-nausea-blocker.meta.js` 比对版本
 
-> 仓库里的 `.meta.js` 是给 Greasyfork 用的轻量元数据文件。它让 Greasyfork 只下载几十字节判断版本，版本没变就不重复拉取完整脚本。
+> 仓库里的 `.meta.js` 是给 Greasyfork 用的元数据文件。它让 Greasyfork 只下载几 KB 判断版本，版本没变就不重复拉取完整脚本（几十 KB 的完整脚本只在真有更新时才下载）。
 
 ## Greasyfork 脚本页面填写
 
@@ -199,11 +201,24 @@ Greasyfork 会自动同步，也可以在后台手动点「同步」。
 .
 ├── jd-nausea-blocker.user.js   # 主脚本
 ├── jd-nausea-blocker.meta.js   # Greasyfork 用的元数据（由 update-meta.js 生成）
+├── icon.png                    # 脚本图标（64×64，同时以 base64 内嵌在 @icon 里）
 ├── ADDITIONAL_INFO.md          # 粘到 Greasyfork「附加信息」框的文案
 ├── update-meta.js              # 生成 meta.js 的小工具
 ├── README.md
 └── LICENSE
 ```
+
+## 图标
+
+脚本自带图标：京东红圆角底 + 白色「禁止」标志，装好后会在 Tampermonkey / 暴力猴的脚本列表里显示，和你的其他脚本一样。
+
+图标以 **data URI 内嵌**在 `@icon` 里（约 4 KB），不依赖网络，断网或 GitHub 访问不畅时也能正常显示。
+
+```
+// @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHe...
+```
+
+想换图标的话：把新的 64×64 PNG 转成 base64，替换 `@icon` 那一行即可；`icon.png` 也一并替换（它在 README 和仓库里展示用）。改完记得跑一次 `node update-meta.js` 让 `.meta.js` 同步。
 
 ## 许可证
 
